@@ -11,6 +11,8 @@
 		"format": "prettier --write ."
 	},
 	"dependencies": {
+		"effector": "^23.2.0",
+		"effector-react": "^23.2.0",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0"
 	},
