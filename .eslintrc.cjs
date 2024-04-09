@@ -7,15 +7,18 @@ module.exports = {
 		'plugin:react-hooks/recommended',
 		'plugin:effector/recommended',
 		'plugin:effector/future',
-		'plugin:effector/react'
+		'plugin:effector/react',
+		'plugin:effector/patronum'
 	],
 	ignorePatterns: ['dist', '.eslintrc.cjs'],
 	parser: '@typescript-eslint/parser',
 	plugins: ['react-refresh', 'effector'],
 	rules: {
+		'react-hooks/exhaustive-deps': 'warn',
 		'react-refresh/only-export-components': [
 			'warn',
 			{ allowConstantExport: true }
-		]
+		],
+		'no-empty': ['error', { allowEmptyCatch: true }]
 	}
 }
