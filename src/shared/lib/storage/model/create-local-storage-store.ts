@@ -1,7 +1,19 @@
-import { createEffect, createStore } from 'effector'
-import { createLocalStorage } from '../local-storage'
+import { createEffect, createEvent, createStore } from 'effector'
+import { throttle } from 'patronum'
+import {
+	addEventListenerLocalStorage,
+	createLocalStorage
+} from '../local-storage'
 
-export const createLocalStorageStore = <T>(key: string, defaultValue: T) => {
+type CreateLocalStorageStoreOptions = {
+	sync?: boolean
+}
+
+export const createLocalStorageStore = <T>(
+	key: string,
+	defaultValue: T,
+	{ sync }: CreateLocalStorageStoreOptions = { sync: false }
+) => {
 	const localStorage = createLocalStorage(key, defaultValue)
 
 	const getValueFx = createEffect<void, T>(() => localStorage.get())
@@ -12,11 +24,29 @@ export const createLocalStorageStore = <T>(key: string, defaultValue: T) => {
 	)
 	const $pending = getValueFx.pending
 
+	let storeSkipStorageSet = 0
 	getValueFx.done.watch(() => {
-		$store.watch(value => localStorage.set(value))
+		$store.watch(value => {
+			if (storeSkipStorageSet > 0) {
+				storeSkipStorageSet--
+				return
+			}
+
+			localStorage.set(value)
+		})
 	})
 
 	getValueFx()
+
+	if (sync) {
+		const setStore = createEvent<T | null>()
+		$store.on(throttle(setStore, 60), (state, value) => {
+			storeSkipStorageSet++
+			return value ?? state
+		})
+
+		addEventListenerLocalStorage(localStorage, setStore)
+	}
 
 	return { $store, $pending }
 }
