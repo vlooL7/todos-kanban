@@ -18,3 +18,8 @@ export type TodosColumnMove = {
 	to: number
 	todosColumn: Pick<TodosColumn, 'id'>
 }
+
+export type TodosColumnMoveAfter = {
+	todosColumn: Pick<TodosColumn, 'id'>
+	todosColumnAfter: Pick<TodosColumn, 'id'>
+}

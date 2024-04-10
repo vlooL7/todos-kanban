@@ -1,8 +1,8 @@
-import { TodoCreated, TodoMove, TodoRemoved, TodoUpdated } from './todo'
+import { Todo, TodoCreated, TodoUpdated } from './todo'
 import { TodosColumn } from './todos-column'
 
 export type TodoInTodosColumn = {
-	todo: TodoCreated
+	todo: Todo
 	todosColumnId: TodosColumn['id']
 }
 
@@ -12,7 +12,7 @@ export type TodoInTodosColumnCreated = {
 }
 
 export type TodoInTodosColumnRemoved = {
-	todo: TodoRemoved
+	todoId: Todo['id']
 	todosColumnId: TodosColumn['id']
 }
 
@@ -22,7 +22,20 @@ export type TodoInTodosColumnUpdated = {
 }
 
 export type TodoInTodosColumnMove = {
-	todo: TodoMove
+	todoId: Todo['id']
 	todosColumnId: TodosColumn['id']
 	to: number
+}
+
+export type TodoInTodosColumnMoveFromTo = {
+	todoFromId: Todo['id']
+	todoToId: Todo['id']
+	todosColumnFromId: TodosColumn['id']
+	todosColumnToId: TodosColumn['id']
+}
+
+export type TodoInTodosColumnPushFromTo = {
+	todoFromId: Todo['id']
+	todosColumnFromId: TodosColumn['id']
+	todosColumnToId: TodosColumn['id']
 }

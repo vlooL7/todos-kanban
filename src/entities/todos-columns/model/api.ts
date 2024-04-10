@@ -3,14 +3,17 @@ import { $todosColumns } from './stores'
 import {
 	TodoInTodosColumnCreated,
 	TodoInTodosColumnMove,
+	TodoInTodosColumnMoveFromTo,
+	TodoInTodosColumnPushFromTo,
 	TodoInTodosColumnRemoved,
 	TodoInTodosColumnUpdated,
 	TodosColumnCreated,
 	TodosColumnMove,
+	TodosColumnMoveAfter,
 	TodosColumnRemoved,
 	TodosColumnUpdated
 } from './types'
-import { todosColumnUtils } from './utils'
+import { todosColumnUtils, todosColumnsUtils } from './utils'
 
 export const todosColumnsApi = createApi($todosColumns, {
 	create(state, todosColumn: TodosColumnCreated) {
@@ -27,15 +30,13 @@ export const todosColumnsApi = createApi($todosColumns, {
 		return state.filter(item => item.id !== todosColumn.id)
 	},
 	move(state, { to, todosColumn }: TodosColumnMove) {
-		if (to < 0 || to >= state.length) return state
+		return todosColumnsUtils.move(state, todosColumn, to)
+	},
+	moveAfter(state, { todosColumn, todosColumnAfter }: TodosColumnMoveAfter) {
+		if (todosColumn.id === todosColumnAfter.id) return state
 
-		const todosColumnIndex = state.findIndex(item => item.id === todosColumn.id)
-		if (todosColumnIndex === -1 || to === todosColumnIndex) return state
-
-		const todosColumns = [...state]
-		todosColumns.splice(todosColumnIndex, 1)
-		todosColumns.splice(to, 0, state[todosColumnIndex])
-		return todosColumns
+		const to = state.findIndex(item => item.id === todosColumnAfter.id)
+		return todosColumnsUtils.move(state, todosColumn, to)
 	}
 })
 
@@ -52,16 +53,113 @@ export const todoInTodosColumnApi = createApi($todosColumns, {
 			return todosColumnUtils.update(item, todo)
 		})
 	},
-	remove(state, { todo, todosColumnId }: TodoInTodosColumnRemoved) {
+	remove(state, { todoId, todosColumnId }: TodoInTodosColumnRemoved) {
 		return state.map(item => {
 			if (item.id !== todosColumnId) return item
-			return todosColumnUtils.remove(item, todo)
+			return todosColumnUtils.remove(item, todoId)
 		})
 	},
-	move(state, { todo, todosColumnId, to }: TodoInTodosColumnMove) {
+	move(state, { todoId, todosColumnId, to }: TodoInTodosColumnMove) {
 		return state.map(item => {
 			if (item.id !== todosColumnId) return item
-			return todosColumnUtils.move(item, todo, to)
+			return todosColumnUtils.move(item, todoId, to)
 		})
+	},
+	moveFromTo(
+		state,
+		{
+			todoFromId,
+			todoToId,
+			todosColumnFromId,
+			todosColumnToId
+		}: TodoInTodosColumnMoveFromTo
+	) {
+		if (todoFromId === todoToId) return state
+
+		if (todosColumnFromId === todosColumnToId) {
+			const todosColumn = todosColumnUtils.getTodosColumnWithTodo(state, {
+				todoId: todoFromId,
+				todosColumnId: todosColumnFromId
+			})
+			if (!todosColumn) return state
+
+			const to = todosColumn.todosColumn.todos.findIndex(
+				item => item.id === todoToId
+			)
+			if (to === -1) return state
+
+			const todosColumns = [...state]
+			todosColumns[todosColumn.todosColumnIndex] = todosColumnUtils.move(
+				todosColumn.todosColumn,
+				todoFromId,
+				to
+			)
+
+			return todosColumns
+		}
+
+		const todosColumnFrom = todosColumnUtils.getTodosColumnWithTodo(state, {
+			todoId: todoFromId,
+			todosColumnId: todosColumnFromId
+		})
+		if (!todosColumnFrom) return state
+
+		const todosColumnTo = todosColumnUtils.getTodosColumnWithTodo(state, {
+			todoId: todoToId,
+			todosColumnId: todosColumnToId
+		})
+		if (!todosColumnTo) return state
+
+		const todosColumns = [...state]
+
+		todosColumns[todosColumnFrom.todosColumnIndex] = todosColumnUtils.remove(
+			todosColumnFrom.todosColumn,
+			todoFromId
+		)
+
+		todosColumnTo.todosColumn.todos.unshift(todosColumnFrom.todo)
+		todosColumns[todosColumnTo.todosColumnIndex] = todosColumnUtils.move(
+			todosColumnTo.todosColumn,
+			todoFromId,
+			todosColumnTo.todoIndex + 1
+		)
+
+		return todosColumns
+	},
+	pushFromTo(
+		state,
+		{
+			todoFromId,
+			todosColumnFromId,
+			todosColumnToId
+		}: TodoInTodosColumnPushFromTo
+	) {
+		if (todosColumnFromId === todosColumnToId) return state
+
+		const todosColumnToIndex = state.findIndex(
+			item => item.id === todosColumnToId
+		)
+		if (todosColumnToIndex === -1) return state
+		const todosColumnTo = state[todosColumnToIndex]
+
+		const todosColumnFrom = todosColumnUtils.getTodosColumnWithTodo(state, {
+			todoId: todoFromId,
+			todosColumnId: todosColumnFromId
+		})
+		if (!todosColumnFrom) return state
+
+		const todosColumns = [...state]
+
+		todosColumns[todosColumnFrom.todosColumnIndex] = todosColumnUtils.remove(
+			todosColumnFrom.todosColumn,
+			todoFromId
+		)
+
+		todosColumns[todosColumnToIndex] = todosColumnUtils.push(
+			todosColumnTo,
+			todosColumnFrom.todo
+		)
+
+		return todosColumns
 	}
 })
