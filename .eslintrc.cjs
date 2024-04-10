@@ -14,7 +14,10 @@ module.exports = {
 	parser: '@typescript-eslint/parser',
 	plugins: ['react-refresh', 'effector'],
 	rules: {
-		'react-hooks/exhaustive-deps': 'warn',
+		'react-hooks/exhaustive-deps': [
+			'warn',
+			{ additionalHooks: '(useDrag|useDrop)' }
+		],
 		'react-refresh/only-export-components': [
 			'warn',
 			{ allowConstantExport: true }
