@@ -21,7 +21,8 @@ export const TodoDropdown = ({ todosColumnId, todo }: TodoDropdownProps) => {
 	const todoDialogApi = useUnit(todoFormModel.dialogApi)
 
 	const onEdit = () => todoDialogApi.openEdited({ todo, todosColumnId })
-	const onRemove = () => todoInTodosColumnApi.remove({ todo, todosColumnId })
+	const onRemove = () =>
+		todoInTodosColumnApi.remove({ todoId: todo.id, todosColumnId })
 
 	return (
 		<DropdownMenu>
