@@ -3,7 +3,7 @@ import { throttle } from 'patronum'
 import {
 	addEventListenerLocalStorage,
 	createLocalStorage
-} from '../local-storage'
+} from 'shared/lib/storage'
 
 type CreateLocalStorageStoreOptions = {
 	sync?: boolean
