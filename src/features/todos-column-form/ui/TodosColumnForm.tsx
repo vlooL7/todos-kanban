@@ -11,12 +11,13 @@ import {
 import { model } from '../model'
 
 export const TodosColumnForm = () => {
-	const [{ title }, formValidation, edited] = useUnit([
+	const [{ title }, validation, edited, submit] = useUnit([
 		model.$form,
-		model.$formValidation,
-		model.$edited
+		model.$validation,
+		model.$edited,
+		model.submit
 	])
-	const formApi = useUnit(model.formApi)
+	const { updateByKey } = model.useUpdateByKey()
 
 	return (
 		<>
@@ -30,15 +31,12 @@ export const TodosColumnForm = () => {
 						id="title"
 						placeholder="Title your column"
 						value={title}
-						onChangeText={formApi.setTitle}
+						onChangeText={updateByKey('title')}
 					/>
 				</div>
 			</div>
 			<DialogFooter className="flex justify-between">
-				<DialogClose
-					onClick={formApi.submit}
-					disabled={!formValidation}
-					asChild>
+				<DialogClose onClick={submit} disabled={!validation} asChild>
 					<Button>{edited ? 'Save' : 'Create'}</Button>
 				</DialogClose>
 			</DialogFooter>
