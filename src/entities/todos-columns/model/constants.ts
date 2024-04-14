@@ -1,4 +1,4 @@
-import { TodosColumn } from './types'
+import type { TodosColumn } from './schemes'
 
 let todosColumnIndex = 0
 const createTodosColumn = (

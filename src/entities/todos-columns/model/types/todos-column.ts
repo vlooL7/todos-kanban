@@ -1,11 +1,4 @@
-import { Todo } from './todo'
-
-export type TodosColumn = {
-	id: string
-	title: string
-	todos: Todo[]
-	created_at: string
-}
+import type { TodosColumn } from '../schemes'
 
 export type TodosColumnCreated = Omit<TodosColumn, 'id' | 'created_at'>
 

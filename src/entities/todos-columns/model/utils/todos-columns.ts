@@ -1,4 +1,4 @@
-import type { TodosColumn } from '../types'
+import type { TodosColumn } from '../schemes'
 
 export const todosColumnsUtils = {
 	move(state: TodosColumn[], todosColumn: Pick<TodosColumn, 'id'>, to: number) {

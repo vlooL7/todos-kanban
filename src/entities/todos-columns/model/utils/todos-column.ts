@@ -1,4 +1,5 @@
-import type { Todo, TodoCreated, TodoUpdated, TodosColumn } from '../types'
+import type { Todo, TodosColumn } from '../schemes'
+import type { TodoCreated, TodoUpdated } from '../types'
 
 export const todosColumnUtils = {
 	getTodosColumnWithTodo(

@@ -1,5 +1,5 @@
-import { Todo, TodoCreated, TodoUpdated } from './todo'
-import { TodosColumn } from './todos-column'
+import type { Todo, TodosColumn } from '../schemes'
+import { TodoCreated, TodoUpdated } from './todo'
 
 export type TodoInTodosColumn = {
 	todo: Todo
