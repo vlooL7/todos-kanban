@@ -35,6 +35,8 @@ module.exports = {
 				varsIgnorePattern: '^_',
 				ignoreRestSiblings: true
 			}
-		]
+		],
+		'no-shadow': 'off',
+		'@typescript-eslint/no-shadow': 'error'
 	}
 }
