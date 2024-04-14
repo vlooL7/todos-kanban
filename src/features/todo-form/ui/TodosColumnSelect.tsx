@@ -21,13 +21,13 @@ export const TodosColumnSelect = ({
 		model.$todosColumnId,
 		todosColumnsModel.$todosColumns
 	])
-	const formApi = useUnit(model.formApi)
+	const { updateByKey } = model.useUpdateByKey()
 
 	const items = useMemo(() => {
-		return todosColumns.map(({ id, title }) => {
+		return todosColumns.map(item => {
 			return (
-				<SelectItem key={id} value={id}>
-					{title}
+				<SelectItem key={item.id} value={item.id}>
+					{item.title}
 				</SelectItem>
 			)
 		})
@@ -36,7 +36,7 @@ export const TodosColumnSelect = ({
 	return (
 		<Select
 			value={todosColumnId ?? undefined}
-			onValueChange={formApi.setTodoColumn}>
+			onValueChange={updateByKey('todosColumnId')}>
 			<SelectTrigger id={id}>
 				<SelectValue placeholder={placeholder} />
 			</SelectTrigger>

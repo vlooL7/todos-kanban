@@ -13,12 +13,13 @@ import { model } from '../model'
 import { TodosColumnSelect } from './TodosColumnSelect'
 
 export const TodoForm = () => {
-	const [{ title, description }, formValidation, edited] = useUnit([
+	const [{ title, description }, validation, edited, submit] = useUnit([
 		model.$todo,
-		model.$formValidation,
-		model.$edited
+		model.$validation,
+		model.$edited,
+		model.submit
 	])
-	const formApi = useUnit(model.formApi)
+	const { updateByKey } = model.useUpdateByKey()
 
 	return (
 		<>
@@ -32,7 +33,7 @@ export const TodoForm = () => {
 						id="title"
 						placeholder="Title your todo"
 						value={title}
-						onChangeText={formApi.setTitle}
+						onChangeText={updateByKey('todo.title')}
 						maxLength={150}
 					/>
 				</div>
@@ -42,7 +43,7 @@ export const TodoForm = () => {
 						id="description"
 						placeholder="Description..."
 						value={description}
-						onChangeText={formApi.setDescription}
+						onChangeText={updateByKey('todo.description')}
 						maxLength={550}
 					/>
 				</div>
@@ -52,10 +53,7 @@ export const TodoForm = () => {
 				</div>
 			</div>
 			<DialogFooter className="flex justify-between">
-				<DialogClose
-					onClick={formApi.submit}
-					disabled={!formValidation}
-					asChild>
+				<DialogClose onClick={submit} disabled={!validation} asChild>
 					<Button>{edited ? 'Save' : 'Create'}</Button>
 				</DialogClose>
 			</DialogFooter>
