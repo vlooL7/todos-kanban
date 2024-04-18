@@ -12,6 +12,12 @@ aliasPaths.forEach(aliasPath => {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-	plugins: [react()],
+	plugins: [
+		react({
+			babel: {
+				babelrc: true
+			}
+		})
+	],
 	resolve: { alias }
 })
