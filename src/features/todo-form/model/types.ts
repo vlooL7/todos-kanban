@@ -1,6 +1,3 @@
-import type { Todo, TodoCreated } from 'entities/todos-columns'
+import type { Todo, TodoCreated } from 'entities/todos'
 
-export type Form = {
-	todo: Partial<Omit<Todo, keyof TodoCreated>> & TodoCreated
-	todosColumnId?: string
-}
+export type Form = Partial<Omit<Todo, keyof TodoCreated>> & TodoCreated

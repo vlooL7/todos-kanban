@@ -52,18 +52,19 @@ export const useTodosColumnDnD = (todosColumn: TodosColumn) => {
 		() => ({
 			accept: DnDTypes.TODO_IN_TODOS_COLUMN,
 			hover: (item: TodoInTodosColumnDnDItem) => {
+				if (!item.columnId) return
 				if (latest.current.todosLength !== 0) return
 
 				const todosColumnItem = todosColumnItemLatest.current
-				if (todosColumnItem.id === item.todosColumnId) return
+				if (todosColumnItem.id === item.columnId) return
 
 				todoInTodosColumnApi.pushFromTo({
 					todoFromId: item.id,
-					todosColumnFromId: item.todosColumnId,
-					todosColumnToId: todosColumnItem.id
+					columnFromId: item.columnId,
+					columnToId: todosColumnItem.id
 				})
 
-				item.todosColumnId = todosColumnItem.id
+				item.columnId = todosColumnItem.id
 			},
 			collect: monitor => ({
 				isTodoOver: !!monitor.isOver()

@@ -14,7 +14,7 @@ import { TodosColumnSelect } from './TodosColumnSelect'
 
 export const TodoForm = () => {
 	const [{ title, description }, validation, edited, submit] = useUnit([
-		model.$todo,
+		model.$form,
 		model.$validation,
 		model.$edited,
 		model.submit
@@ -33,7 +33,7 @@ export const TodoForm = () => {
 						id="title"
 						placeholder="Title your todo"
 						value={title}
-						onChangeText={updateByKey('todo.title')}
+						onChangeText={updateByKey('title')}
 						maxLength={150}
 					/>
 				</div>
@@ -43,7 +43,7 @@ export const TodoForm = () => {
 						id="description"
 						placeholder="Description..."
 						value={description}
-						onChangeText={updateByKey('todo.description')}
+						onChangeText={updateByKey('description')}
 						maxLength={550}
 					/>
 				</div>

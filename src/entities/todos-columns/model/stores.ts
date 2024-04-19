@@ -1,8 +1,10 @@
 import { createLocalStorageStore } from 'shared/lib'
 import { TODOS_COLUMNS } from './constants'
-import type { TodosColumn } from './schemes'
+import { TodosColumns } from './types'
 
 export const { $store: $todosColumns, $pending: $todosColumnsPending } =
-	createLocalStorageStore<TodosColumn[]>('todos-columns', TODOS_COLUMNS, {
-		sync: true
+	createLocalStorageStore<TodosColumns>('todos-columns', TODOS_COLUMNS, {
+		prepareSet(state) {
+			return state.map(item => ({ ...item, todos: [] }))
+		}
 	})

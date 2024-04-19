@@ -1,5 +1,7 @@
 import type { TodosColumn } from '../schemes'
 
+export type TodosColumns = TodosColumn[]
+
 export type TodosColumnCreated = Omit<TodosColumn, 'id' | 'created_at'>
 
 export type TodosColumnUpdated = Pick<TodosColumn, 'id'> &

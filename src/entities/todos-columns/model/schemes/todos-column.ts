@@ -1,5 +1,5 @@
+import { TodoScheme } from 'entities/todos'
 import * as v from 'valibot'
-import { TodoScheme } from './todo'
 
 export const TodosColumnScheme = v.object({
 	id: v.string(),

@@ -1,4 +1,5 @@
-import type { TodoInTodosColumn, TodosColumn } from 'entities/todos-columns'
+import type { Todo } from 'entities/todos'
+import type { TodosColumn } from 'entities/todos-columns'
 
 export enum DnDTypes {
 	TODOS_COLUMN = 'TODOS_COLUMN',
@@ -6,5 +7,4 @@ export enum DnDTypes {
 }
 
 export type TodosColumnDnDItem = Pick<TodosColumn, 'id'>
-export type TodoInTodosColumnDnDItem = Pick<TodoInTodosColumn['todo'], 'id'> &
-	Pick<TodoInTodosColumn, 'todosColumnId'>
+export type TodoInTodosColumnDnDItem = Pick<Todo, 'id' | 'columnId'>

@@ -1,6 +1,7 @@
 import { createStore } from 'effector'
+import { TodoScheme } from 'entities/todos'
 import { createFormUpdateByKey, createFormValibotStore } from 'shared/lib'
-import { FormEditedScheme, FormValidateScheme } from './schemes'
+import { FormValidateScheme } from './schemes'
 import { Form } from './types'
 
 export const $visible = createStore(false)
@@ -8,18 +9,16 @@ export const $visible = createStore(false)
 const form = createFormValibotStore<
 	Form,
 	typeof FormValidateScheme,
-	typeof FormEditedScheme
+	typeof TodoScheme
 >(
 	{
-		todo: {
-			title: '',
-			description: ''
-		}
+		title: '',
+		description: ''
 	},
 	{
 		validatedScheme: FormValidateScheme,
-		editedScheme: FormEditedScheme,
-		isEdited: state => !!state.todo.id
+		editedScheme: TodoScheme,
+		isEdited: state => !!state.id
 	}
 )
 

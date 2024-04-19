@@ -1,12 +1,11 @@
 import { createApi } from 'effector'
+import type { TodoPush, todosModel } from 'entities/todos'
+import type { TodosColumn } from './schemes'
 import { $todosColumns } from './stores'
 import {
-	TodoInTodosColumnCreated,
 	TodoInTodosColumnMove,
 	TodoInTodosColumnMoveFromTo,
 	TodoInTodosColumnPushFromTo,
-	TodoInTodosColumnRemoved,
-	TodoInTodosColumnUpdated,
 	TodosColumnCreated,
 	TodosColumnMove,
 	TodosColumnMoveAfter,
@@ -20,6 +19,24 @@ export const todosColumnsApi = createApi($todosColumns, {
 		const created_at = new Date().toISOString()
 		const id = created_at
 		return [...state, { ...todosColumn, id, created_at }]
+	},
+	push(state, todos: TodoPush) {
+		const todosMap = new Map<TodosColumn['id'], todosModel.Todo[]>()
+
+		const todosFlat = [todos].flat()
+		todosFlat.forEach(todo => {
+			if (!todo.columnId) return
+			if (todosMap.has(todo.columnId)) todosMap.get(todo.columnId)!.push(todo)
+			else todosMap.set(todo.columnId, [todo])
+		})
+
+		return state.map(item => {
+			if (!todosMap.has(item.id)) return item
+			return {
+				...item,
+				todos: item.todos.concat(todosMap.get(item.id)!)
+			}
+		})
 	},
 	update(state, todosColumn: TodosColumnUpdated) {
 		return state.map(item =>
@@ -41,27 +58,23 @@ export const todosColumnsApi = createApi($todosColumns, {
 })
 
 export const todoInTodosColumnApi = createApi($todosColumns, {
-	create(state, { todo, todosColumnId }: TodoInTodosColumnCreated) {
+	update(state, todo: todosModel.TodoUpdated) {
+		if (!todo.columnId) return state
 		return state.map(item => {
-			if (item.id !== todosColumnId) return item
-			return todosColumnUtils.create(item, todo)
-		})
-	},
-	update(state, { todo, todosColumnId }: TodoInTodosColumnUpdated) {
-		return state.map(item => {
-			if (item.id !== todosColumnId) return item
+			if (item.id !== todo.columnId) return item
 			return todosColumnUtils.update(item, todo)
 		})
 	},
-	remove(state, { todoId, todosColumnId }: TodoInTodosColumnRemoved) {
+	remove(state, todo: todosModel.TodoRemoved) {
+		if (!todo.columnId) return state
 		return state.map(item => {
-			if (item.id !== todosColumnId) return item
-			return todosColumnUtils.remove(item, todoId)
+			if (item.id !== todo.columnId) return item
+			return todosColumnUtils.remove(item, todo)
 		})
 	},
-	move(state, { todoId, todosColumnId, to }: TodoInTodosColumnMove) {
+	move(state, { todoId, columnId, to }: TodoInTodosColumnMove) {
 		return state.map(item => {
-			if (item.id !== todosColumnId) return item
+			if (item.id !== columnId) return item
 			return todosColumnUtils.move(item, todoId, to)
 		})
 	},
@@ -70,16 +83,16 @@ export const todoInTodosColumnApi = createApi($todosColumns, {
 		{
 			todoFromId,
 			todoToId,
-			todosColumnFromId,
-			todosColumnToId
+			columnFromId,
+			columnToId
 		}: TodoInTodosColumnMoveFromTo
 	) {
 		if (todoFromId === todoToId) return state
 
-		if (todosColumnFromId === todosColumnToId) {
+		if (columnFromId === columnToId) {
 			const todosColumn = todosColumnUtils.getTodosColumnWithTodo(state, {
 				todoId: todoFromId,
-				todosColumnId: todosColumnFromId
+				todosColumnId: columnFromId
 			})
 			if (!todosColumn) return state
 
@@ -100,13 +113,13 @@ export const todoInTodosColumnApi = createApi($todosColumns, {
 
 		const todosColumnFrom = todosColumnUtils.getTodosColumnWithTodo(state, {
 			todoId: todoFromId,
-			todosColumnId: todosColumnFromId
+			todosColumnId: columnFromId
 		})
 		if (!todosColumnFrom) return state
 
 		const todosColumnTo = todosColumnUtils.getTodosColumnWithTodo(state, {
 			todoId: todoToId,
-			todosColumnId: todosColumnToId
+			todosColumnId: columnToId
 		})
 		if (!todosColumnTo) return state
 
@@ -114,7 +127,7 @@ export const todoInTodosColumnApi = createApi($todosColumns, {
 
 		todosColumns[todosColumnFrom.todosColumnIndex] = todosColumnUtils.remove(
 			todosColumnFrom.todosColumn,
-			todoFromId
+			{ id: todoFromId }
 		)
 
 		todosColumnTo.todosColumn.todos.unshift(todosColumnFrom.todo)
@@ -130,8 +143,8 @@ export const todoInTodosColumnApi = createApi($todosColumns, {
 		state,
 		{
 			todoFromId,
-			todosColumnFromId,
-			todosColumnToId
+			columnFromId: todosColumnFromId,
+			columnToId: todosColumnToId
 		}: TodoInTodosColumnPushFromTo
 	) {
 		if (todosColumnFromId === todosColumnToId) return state
@@ -152,7 +165,7 @@ export const todoInTodosColumnApi = createApi($todosColumns, {
 
 		todosColumns[todosColumnFrom.todosColumnIndex] = todosColumnUtils.remove(
 			todosColumnFrom.todosColumn,
-			todoFromId
+			{ id: todoFromId }
 		)
 
 		todosColumns[todosColumnToIndex] = todosColumnUtils.push(

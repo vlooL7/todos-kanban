@@ -1,12 +1,12 @@
 import { createApi } from 'effector'
-import { TodoInTodosColumn } from 'entities/todos-columns'
-import { DeepPartial } from 'shared/types'
+import type { Todo } from 'entities/todos'
 import { $visible } from './stores'
 import { Form } from './types'
+import { PartialDeep } from 'type-fest'
 
 export const dialogApi = createApi($visible, {
 	open: () => true,
-	openCreated: (_state, _payload: DeepPartial<Form>) => true,
-	openEdited: (_state, _payload: TodoInTodosColumn) => true,
+	openCreated: (_state, _payload: PartialDeep<Form>) => true,
+	openEdited: (_state, _payload: Todo) => true,
 	close: () => false
 })

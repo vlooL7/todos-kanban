@@ -5,18 +5,19 @@ import {
 	createLocalStorage
 } from 'shared/lib/storage'
 
-type CreateLocalStorageStoreOptions = {
+type CreateLocalStorageStoreOptions<T> = {
 	sync?: boolean
+	prepareSet?: (state: T) => T
 }
 
 export const createLocalStorageStore = <T>(
 	key: string,
 	defaultValue: T,
-	{ sync }: CreateLocalStorageStoreOptions = { sync: false }
+	{ sync, prepareSet }: CreateLocalStorageStoreOptions<T> = { sync: false }
 ) => {
 	const localStorage = createLocalStorage(key, defaultValue)
 
-	const getValueFx = createEffect<void, T>(() => localStorage.get())
+	const getValueFx = createEffect<void, T>(async () => localStorage.get())
 
 	const $store = createStore(defaultValue).on(
 		getValueFx.doneData,
@@ -32,6 +33,7 @@ export const createLocalStorageStore = <T>(
 				return
 			}
 
+			if (prepareSet) value = prepareSet(value)
 			localStorage.set(value)
 		})
 	})

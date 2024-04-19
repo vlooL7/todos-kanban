@@ -1,14 +1,15 @@
 import { useUnit } from 'effector-react'
-import { TodoInTodosColumn, todosColumnsModel } from 'entities/todos-columns'
+import { Todo } from 'entities/todos'
+import { todosColumnsModel } from 'entities/todos-columns'
 import { useDrag, useDrop } from 'react-dnd'
 import { DnDTypes, TodoInTodosColumnDnDItem, useLatest } from 'shared/lib'
 
-export const useTodoDnD = ({ todo, todosColumnId }: TodoInTodosColumn) => {
+export const useTodoDnD = (todo: Todo) => {
 	const todoInTodosColumnApi = useUnit(todosColumnsModel.todoInTodosColumnApi)
 
 	const todoItemLatest = useLatest<TodoInTodosColumnDnDItem>({
 		id: todo.id,
-		todosColumnId: todosColumnId
+		columnId: todo.columnId
 	})
 
 	const [{ isDragging, isMove }, drag, dragPreview] = useDrag(
@@ -29,15 +30,16 @@ export const useTodoDnD = ({ todo, todosColumnId }: TodoInTodosColumn) => {
 			hover: (item: TodoInTodosColumnDnDItem) => {
 				const todoItem = todoItemLatest.current
 				if (item.id === todoItem.id) return
+				if (!item.columnId || !todoItem.columnId) return
 
 				todoInTodosColumnApi.moveFromTo({
 					todoFromId: item.id,
 					todoToId: todoItem.id,
-					todosColumnFromId: item.todosColumnId,
-					todosColumnToId: todoItem.todosColumnId
+					columnFromId: item.columnId,
+					columnToId: todoItem.columnId
 				})
 
-				item.todosColumnId = todoItem.todosColumnId
+				item.columnId = todoItem.columnId
 			}
 		}),
 		[todoInTodosColumnApi, todoItemLatest]

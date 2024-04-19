@@ -17,8 +17,8 @@ export const TodosColumnSelect = ({
 	id,
 	placeholder
 }: TodosColumnSelectProps) => {
-	const [todosColumnId, todosColumns] = useUnit([
-		model.$todosColumnId,
+	const [{ columnId }, todosColumns] = useUnit([
+		model.$form,
 		todosColumnsModel.$todosColumns
 	])
 	const { updateByKey } = model.useUpdateByKey()
@@ -34,9 +34,7 @@ export const TodosColumnSelect = ({
 	}, [todosColumns])
 
 	return (
-		<Select
-			value={todosColumnId ?? undefined}
-			onValueChange={updateByKey('todosColumnId')}>
+		<Select value={columnId} onValueChange={updateByKey('columnId')}>
 			<SelectTrigger id={id}>
 				<SelectValue placeholder={placeholder} />
 			</SelectTrigger>

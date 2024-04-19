@@ -1,20 +1,20 @@
 import { sample } from 'effector'
-import { todosColumnsModel } from 'entities/todos-columns'
+import { todosModel } from 'entities/todos'
 import defaultsDeep from 'lodash/defaultsDeep'
 import { reset } from 'patronum'
 import { dialogApi } from './api'
 import { $form, $visible, create, save } from './stores'
 
-const { todoInTodosColumnApi } = todosColumnsModel
+const { todosApi } = todosModel
 
 sample({
 	clock: create,
-	target: todoInTodosColumnApi.create
+	target: todosApi.create
 })
 
 sample({
 	clock: save,
-	target: todoInTodosColumnApi.update
+	target: todosApi.update
 })
 
 sample({

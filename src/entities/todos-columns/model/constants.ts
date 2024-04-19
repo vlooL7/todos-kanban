@@ -5,9 +5,7 @@ const createTodosColumn = (
 	params: Omit<TodosColumn, 'id' | 'created_at'>
 ): TodosColumn => {
 	const created_at = new Date(Date.now() + ++todosColumnIndex).toISOString()
-	const id = created_at
-
-	return { ...params, id, created_at }
+	return { ...params, id: params.title, created_at }
 }
 
 export const TODOS_COLUMNS: TodosColumn[] = [

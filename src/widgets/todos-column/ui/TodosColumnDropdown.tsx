@@ -24,7 +24,7 @@ export const TodosColumnDropdown = ({
 	const todosColumnsApi = useUnit(todosColumnsModel.todosColumnsApi)
 
 	const onCreateTodo = () =>
-		todoDialogApi.openCreated({ todosColumnId: todosColumn.id })
+		todoDialogApi.openCreated({ columnId: todosColumn.id })
 	const onEdit = () => todosColumnDialogApi.openEdited(todosColumn)
 	const onRemove = () => todosColumnsApi.remove({ id: todosColumn.id })
 

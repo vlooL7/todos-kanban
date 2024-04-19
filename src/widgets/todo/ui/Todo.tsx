@@ -1,22 +1,16 @@
-import { todosColumnsModel } from 'entities/todos-columns'
+import { todosModel } from 'entities/todos'
 import { Grip } from 'lucide-react'
 import { memo, useLayoutEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { useTodoDnD } from '../hooks'
 import { TodoDropdown } from './TodoDropdown'
 
-export type TodoProps = {
-	todosColumnId: string
-	todo: todosColumnsModel.Todo
-}
-const TodoView = ({ todosColumnId, todo }: TodoProps) => {
+export type TodoProps = { todo: todosModel.Todo }
+const TodoView = ({ todo }: TodoProps) => {
 	const { title, description, created_at } = todo
 	const ref = useRef<HTMLDivElement>(null)
 
-	const { isMove, isDragging, drag, dragPreview, drop } = useTodoDnD({
-		todo,
-		todosColumnId
-	})
+	const { isMove, isDragging, drag, dragPreview, drop } = useTodoDnD(todo)
 
 	useLayoutEffect(() => {
 		dragPreview(drop(ref))
@@ -32,7 +26,7 @@ const TodoView = ({ todosColumnId, todo }: TodoProps) => {
 			)}>
 			<div className="flex flex-row gap-2 justify-between">
 				<h3 className="font-semibold">{title}</h3>
-				<TodoDropdown todosColumnId={todosColumnId} todo={todo} />
+				<TodoDropdown todo={todo} />
 			</div>
 			<p className="text-sm">{description}</p>
 			<div className="flex items-center justify-between">

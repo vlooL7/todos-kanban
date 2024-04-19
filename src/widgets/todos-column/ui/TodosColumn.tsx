@@ -40,9 +40,7 @@ const TodosColumnView = ({ todosColumn }: TodosColumnProps) => {
 				</CardTitle>
 				<div className="flex flex-col gap-2">
 					{todosColumn.todos.map(todo => {
-						return (
-							<Todo key={todo.id} todosColumnId={todosColumn.id} todo={todo} />
-						)
+						return <Todo key={todo.id} todo={todo} />
 					})}
 				</div>
 			</Card>

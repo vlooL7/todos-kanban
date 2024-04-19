@@ -1,5 +1,10 @@
-import type { Todo, TodosColumn } from '../schemes'
-import type { TodoCreated, TodoUpdated } from '../types'
+import type {
+	Todo,
+	TodoCreated,
+	TodoRemoved,
+	TodoUpdated
+} from 'entities/todos'
+import type { TodosColumn } from '../schemes'
 
 export const todosColumnUtils = {
 	getTodosColumnWithTodo(
@@ -36,10 +41,10 @@ export const todosColumnUtils = {
 			)
 		}
 	},
-	remove(todosColumn: TodosColumn, todoId: Todo['id']) {
+	remove(todosColumn: TodosColumn, todo: Pick<TodoRemoved, 'id'>) {
 		return {
 			...todosColumn,
-			todos: todosColumn.todos.filter(item => item.id !== todoId)
+			todos: todosColumn.todos.filter(item => item.id !== todo.id)
 		}
 	},
 	push(todosColumn: TodosColumn, todo: Todo) {
