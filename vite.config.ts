@@ -1,6 +1,7 @@
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import { AliasOptions, defineConfig } from 'vite'
+import { TanStackRouterVite } from '@tanstack/router-vite-plugin'
 
 const alias: AliasOptions = {}
 
@@ -17,7 +18,8 @@ export default defineConfig({
 			babel: {
 				babelrc: true
 			}
-		})
+		}),
+		TanStackRouterVite()
 	],
 	resolve: { alias }
 })
