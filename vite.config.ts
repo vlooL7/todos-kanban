@@ -5,7 +5,7 @@ import { TanStackRouterVite } from '@tanstack/router-vite-plugin'
 
 const alias: AliasOptions = {}
 
-const aliasPaths = ['pages', 'widgets', 'features', 'entities', 'shared']
+const aliasPaths = ['routes', 'widgets', 'features', 'entities', 'shared']
 
 aliasPaths.forEach(aliasPath => {
 	alias[aliasPath] = path.resolve(__dirname, 'src', aliasPath)

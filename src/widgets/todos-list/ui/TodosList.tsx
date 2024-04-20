@@ -5,7 +5,7 @@ export const TodosList = () => {
 	const todos = useUnit(todosModel.$todos)
 
 	return (
-		<div className="flex flex-1 overflow-auto">
+		<div className="flex overflow-auto">
 			<div className="flex flex-col gap-4 px-8 py-4 h-max">
 				{todos.map(todo => {
 					return (
