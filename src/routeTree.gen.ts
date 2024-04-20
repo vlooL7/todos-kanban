@@ -24,57 +24,57 @@ const TodosColumnsIndexLazyImport = createFileRoute('/todos/columns/')()
 // Create/Update Routes
 
 const TodosListRoute = TodosListImport.update({
-	path: '/todos/list',
-	getParentRoute: () => rootRoute
+  path: '/todos/list',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const TodosColumnsRoute = TodosColumnsImport.update({
-	path: '/todos/columns',
-	getParentRoute: () => rootRoute
+  path: '/todos/columns',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const TodosListIndexLazyRoute = TodosListIndexLazyImport.update({
-	path: '/',
-	getParentRoute: () => TodosListRoute
+  path: '/',
+  getParentRoute: () => TodosListRoute,
 } as any).lazy(() =>
-	import('./routes/todos/list/index.lazy').then(d => d.Route)
+  import('./routes/todos/list/index.lazy').then((d) => d.Route),
 )
 
 const TodosColumnsIndexLazyRoute = TodosColumnsIndexLazyImport.update({
-	path: '/',
-	getParentRoute: () => TodosColumnsRoute
+  path: '/',
+  getParentRoute: () => TodosColumnsRoute,
 } as any).lazy(() =>
-	import('./routes/todos/columns/index.lazy').then(d => d.Route)
+  import('./routes/todos/columns/index.lazy').then((d) => d.Route),
 )
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
-	interface FileRoutesByPath {
-		'/todos/columns': {
-			preLoaderRoute: typeof TodosColumnsImport
-			parentRoute: typeof rootRoute
-		}
-		'/todos/list': {
-			preLoaderRoute: typeof TodosListImport
-			parentRoute: typeof rootRoute
-		}
-		'/todos/columns/': {
-			preLoaderRoute: typeof TodosColumnsIndexLazyImport
-			parentRoute: typeof TodosColumnsImport
-		}
-		'/todos/list/': {
-			preLoaderRoute: typeof TodosListIndexLazyImport
-			parentRoute: typeof TodosListImport
-		}
-	}
+  interface FileRoutesByPath {
+    '/todos/columns': {
+      preLoaderRoute: typeof TodosColumnsImport
+      parentRoute: typeof rootRoute
+    }
+    '/todos/list': {
+      preLoaderRoute: typeof TodosListImport
+      parentRoute: typeof rootRoute
+    }
+    '/todos/columns/': {
+      preLoaderRoute: typeof TodosColumnsIndexLazyImport
+      parentRoute: typeof TodosColumnsImport
+    }
+    '/todos/list/': {
+      preLoaderRoute: typeof TodosListIndexLazyImport
+      parentRoute: typeof TodosListImport
+    }
+  }
 }
 
 // Create and export the route tree
 
 export const routeTree = rootRoute.addChildren([
-	TodosColumnsRoute.addChildren([TodosColumnsIndexLazyRoute]),
-	TodosListRoute.addChildren([TodosListIndexLazyRoute])
+  TodosColumnsRoute.addChildren([TodosColumnsIndexLazyRoute]),
+  TodosListRoute.addChildren([TodosListIndexLazyRoute]),
 ])
 
 /* prettier-ignore-end */
