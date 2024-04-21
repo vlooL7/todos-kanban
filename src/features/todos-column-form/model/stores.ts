@@ -1,27 +1,29 @@
 import { createStore } from 'effector'
+import {
+	TodosColumnCreatedScheme,
+	TodosColumnScheme
+} from 'entities/todos-columns'
 import { createFormUpdateByKey, createFormValibotStore } from 'shared/lib'
-import { FormEditedScheme, FormValidateScheme } from './schemes'
 import { Form } from './types'
 
 export const $visible = createStore(false)
 
 const form = createFormValibotStore<
 	Form,
-	typeof FormValidateScheme,
-	typeof FormEditedScheme
+	typeof TodosColumnCreatedScheme,
+	typeof TodosColumnScheme
 >(
 	{
 		title: '',
 		todos: []
 	},
 	{
-		validatedScheme: FormValidateScheme,
-		editedScheme: FormEditedScheme,
+		validatedScheme: TodosColumnCreatedScheme,
+		editedScheme: TodosColumnScheme,
 		isEdited: state => !!state.id
 	}
 )
 
-export const { $form, $edited, $validation, create, save, submit, $errors } =
-	form
+export const { $form, $edited, $validation, create, save, submit } = form
 
 export const { useUpdateByKey } = createFormUpdateByKey($form)

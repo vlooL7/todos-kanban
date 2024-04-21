@@ -4,7 +4,7 @@ export const TodoScheme = v.object({
 	id: v.string(),
 	title: v.string([v.minLength(1)]),
 	description: v.string(),
-	created_at: v.string([v.isoDate()]),
+	created_at: v.string([v.isoTimestamp()]),
 	columnId: v.optional(v.string())
 })
 

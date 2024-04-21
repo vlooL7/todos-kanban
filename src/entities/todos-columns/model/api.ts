@@ -1,9 +1,8 @@
 import { createApi } from 'effector'
 import type { TodoChangeColumn, TodoPush, todosModel } from 'entities/todos'
-import type { TodosColumn } from './schemes'
+import { type TodosColumn, type TodosColumnCreated } from './schemes'
 import { $todosColumns } from './stores'
 import {
-	TodosColumnCreated,
 	TodosColumnMove,
 	TodosColumnMoveAfter,
 	TodosColumnRemoved,
