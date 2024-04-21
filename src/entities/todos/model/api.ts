@@ -1,6 +1,8 @@
 import { createApi } from 'effector'
 import * as v from 'valibot'
 import {
+	TodoChangeColumn,
+	TodoChangeColumnScheme,
 	TodoCreatedScheme,
 	TodoPushScheme,
 	TodoRemovedScheme,
@@ -37,5 +39,19 @@ export const todosApi = createApi($todos, {
 		return state.map(item =>
 			item.id === todo.id ? { ...item, ...todo } : item
 		)
+	},
+	changeColumn(state, todoChange: TodoChangeColumn) {
+		if (!v.is(TodoChangeColumnScheme, todoChange)) return state
+		const { todoFromId, columnToId } = todoChange
+
+		const todoIndex = state.findIndex(item => item.id === todoFromId)
+		if (todoIndex === -1) return state
+
+		const todo = state[todoIndex]
+		if (todo.columnId === columnToId) return state
+
+		const todos = [...state]
+		todos[todoIndex] = { ...todo, columnId: columnToId }
+		return todos
 	}
 })

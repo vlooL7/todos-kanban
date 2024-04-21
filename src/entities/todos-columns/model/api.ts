@@ -1,11 +1,8 @@
 import { createApi } from 'effector'
-import type { TodoPush, todosModel } from 'entities/todos'
+import type { TodoChangeColumn, TodoPush, todosModel } from 'entities/todos'
 import type { TodosColumn } from './schemes'
 import { $todosColumns } from './stores'
 import {
-	TodoInTodosColumnMove,
-	TodoInTodosColumnMoveFromTo,
-	TodoInTodosColumnPushFromTo,
 	TodosColumnCreated,
 	TodosColumnMove,
 	TodosColumnMoveAfter,
@@ -19,24 +16,6 @@ export const todosColumnsApi = createApi($todosColumns, {
 		const created_at = new Date().toISOString()
 		const id = created_at
 		return [...state, { ...todosColumn, id, created_at }]
-	},
-	push(state, todos: TodoPush) {
-		const todosMap = new Map<TodosColumn['id'], todosModel.Todo[]>()
-
-		const todosFlat = [todos].flat()
-		todosFlat.forEach(todo => {
-			if (!todo.columnId) return
-			if (todosMap.has(todo.columnId)) todosMap.get(todo.columnId)!.push(todo)
-			else todosMap.set(todo.columnId, [todo])
-		})
-
-		return state.map(item => {
-			if (!todosMap.has(item.id)) return item
-			return {
-				...item,
-				todos: item.todos.concat(todosMap.get(item.id)!)
-			}
-		})
 	},
 	update(state, todosColumn: TodosColumnUpdated) {
 		return state.map(item =>
@@ -57,7 +36,25 @@ export const todosColumnsApi = createApi($todosColumns, {
 	}
 })
 
-export const todoInTodosColumnApi = createApi($todosColumns, {
+export const _todoInTodosColumnApi = createApi($todosColumns, {
+	push(state, todos: TodoPush) {
+		const todosMap = new Map<TodosColumn['id'], todosModel.Todo[]>()
+
+		const todosFlat = [todos].flat()
+		todosFlat.forEach(todo => {
+			if (!todo.columnId) return
+			if (todosMap.has(todo.columnId)) todosMap.get(todo.columnId)!.push(todo)
+			else todosMap.set(todo.columnId, [todo])
+		})
+
+		return state.map(item => {
+			if (!todosMap.has(item.id)) return item
+			return {
+				...item,
+				todos: item.todos.concat(todosMap.get(item.id)!)
+			}
+		})
+	},
 	update(state, todo: todosModel.TodoUpdated) {
 		if (!todo.columnId) return state
 		return state.map(item => {
@@ -71,108 +68,62 @@ export const todoInTodosColumnApi = createApi($todosColumns, {
 			if (item.id !== todo.columnId) return item
 			return todosColumnUtils.remove(item, todo)
 		})
-	},
-	move(state, { todoId, columnId, to }: TodoInTodosColumnMove) {
-		return state.map(item => {
-			if (item.id !== columnId) return item
-			return todosColumnUtils.move(item, todoId, to)
-		})
-	},
-	moveFromTo(
+	}
+})
+
+export const todoInTodosColumnApi = createApi($todosColumns, {
+	changeColumn(
 		state,
-		{
-			todoFromId,
-			todoToId,
-			columnFromId,
-			columnToId
-		}: TodoInTodosColumnMoveFromTo
+		{ todoFromId, todoToId, columnFromId, columnToId }: TodoChangeColumn
 	) {
 		if (todoFromId === todoToId) return state
 
-		if (columnFromId === columnToId) {
-			const todosColumn = todosColumnUtils.getTodosColumnWithTodo(state, {
-				todoId: todoFromId,
-				todosColumnId: columnFromId
-			})
-			if (!todosColumn) return state
-
-			const to = todosColumn.todosColumn.todos.findIndex(
-				item => item.id === todoToId
-			)
-			if (to === -1) return state
-
-			const todosColumns = [...state]
-			todosColumns[todosColumn.todosColumnIndex] = todosColumnUtils.move(
-				todosColumn.todosColumn,
-				todoFromId,
-				to
-			)
-
-			return todosColumns
-		}
-
-		const todosColumnFrom = todosColumnUtils.getTodosColumnWithTodo(state, {
+		const columnFrom = todosColumnUtils.getTodosColumnWithTodo(state, {
 			todoId: todoFromId,
 			todosColumnId: columnFromId
 		})
-		if (!todosColumnFrom) return state
+		if (!columnFrom) return state
 
-		const todosColumnTo = todosColumnUtils.getTodosColumnWithTodo(state, {
-			todoId: todoToId,
-			todosColumnId: columnToId
+		if (columnFromId === columnToId) {
+			const { column, columnIndex, todo, todoIndex } = columnFrom
+
+			const todoToIndex = todoToId
+				? todosColumnUtils.getTodo(column, todoToId)?.todoIndex || 0
+				: 0
+
+			const columns = [...state]
+
+			columns[columnIndex] = { ...column, todos: [...column.todos] }
+			columns[columnIndex].todos.splice(todoIndex, 1)
+			columns[columnIndex].todos.splice(todoToIndex, 0, todo)
+
+			return columns
+		}
+
+		const columnTo = todosColumnUtils.getTodosColumn(state, columnToId)
+		if (!columnTo) return state
+
+		const todoToIndex = todoToId
+			? todosColumnUtils.getTodo(columnTo.column, todoToId)?.todoIndex || 0
+			: 0
+
+		const columns = [...state]
+
+		columns[columnFrom.columnIndex] = {
+			...columnFrom.column,
+			todos: [...columnFrom.column.todos]
+		}
+		columns[columnFrom.columnIndex].todos.splice(columnFrom.todoIndex, 1)
+
+		columns[columnTo.columnIndex] = {
+			...columnTo.column,
+			todos: [...columnTo.column.todos]
+		}
+		columns[columnTo.columnIndex].todos.splice(todoToIndex, 0, {
+			...columnFrom.todo,
+			columnId: columnTo.column.id
 		})
-		if (!todosColumnTo) return state
 
-		const todosColumns = [...state]
-
-		todosColumns[todosColumnFrom.todosColumnIndex] = todosColumnUtils.remove(
-			todosColumnFrom.todosColumn,
-			{ id: todoFromId }
-		)
-
-		todosColumnTo.todosColumn.todos.unshift(todosColumnFrom.todo)
-		todosColumns[todosColumnTo.todosColumnIndex] = todosColumnUtils.move(
-			todosColumnTo.todosColumn,
-			todoFromId,
-			todosColumnTo.todoIndex + 1
-		)
-
-		return todosColumns
-	},
-	pushFromTo(
-		state,
-		{
-			todoFromId,
-			columnFromId: todosColumnFromId,
-			columnToId: todosColumnToId
-		}: TodoInTodosColumnPushFromTo
-	) {
-		if (todosColumnFromId === todosColumnToId) return state
-
-		const todosColumnToIndex = state.findIndex(
-			item => item.id === todosColumnToId
-		)
-		if (todosColumnToIndex === -1) return state
-		const todosColumnTo = state[todosColumnToIndex]
-
-		const todosColumnFrom = todosColumnUtils.getTodosColumnWithTodo(state, {
-			todoId: todoFromId,
-			todosColumnId: todosColumnFromId
-		})
-		if (!todosColumnFrom) return state
-
-		const todosColumns = [...state]
-
-		todosColumns[todosColumnFrom.todosColumnIndex] = todosColumnUtils.remove(
-			todosColumnFrom.todosColumn,
-			{ id: todoFromId }
-		)
-
-		todosColumns[todosColumnToIndex] = todosColumnUtils.push(
-			todosColumnTo,
-			todosColumnFrom.todo
-		)
-
-		return todosColumns
+		return columns
 	}
 })

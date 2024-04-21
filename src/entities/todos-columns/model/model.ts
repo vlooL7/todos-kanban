@@ -1,6 +1,6 @@
 import './watchers'
 
-export * from './api'
+export { todoInTodosColumnApi, todosColumnsApi } from './api'
 export * from './schemes'
 export * from './stores'
 

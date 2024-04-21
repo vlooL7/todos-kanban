@@ -1,7 +1,7 @@
 import { sample } from 'effector'
 import { todosModel } from 'entities/todos'
 import { every, once, or } from 'patronum'
-import { todosColumnsApi } from './api'
+import { todoInTodosColumnApi, _todoInTodosColumnApi } from './api'
 import { $todosColumns, $todosColumnsPending } from './stores'
 import { todosToColumns } from './utils'
 
@@ -22,5 +22,20 @@ sample({
 
 sample({
 	clock: todosApi.push,
-	target: todosColumnsApi.push
+	target: _todoInTodosColumnApi.push
+})
+
+sample({
+	clock: todosApi.update,
+	target: _todoInTodosColumnApi.update
+})
+
+sample({
+	clock: todosApi.remove,
+	target: _todoInTodosColumnApi.remove
+})
+
+sample({
+	clock: todosApi.changeColumn,
+	target: todoInTodosColumnApi.changeColumn
 })

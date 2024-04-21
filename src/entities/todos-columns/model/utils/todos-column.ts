@@ -7,6 +7,20 @@ import type {
 import type { TodosColumn } from '../schemes'
 
 export const todosColumnUtils = {
+	getTodo(todosColumn: TodosColumn, todoId: Todo['id']) {
+		const todoIndex = todosColumn.todos.findIndex(item => item.id === todoId)
+		if (todoIndex === -1) return
+
+		const todo = todosColumn.todos[todoIndex]
+		return { todo, todoIndex }
+	},
+	getTodosColumn(state: TodosColumn[], todosColumnId: string) {
+		const columnIndex = state.findIndex(item => item.id === todosColumnId)
+		if (columnIndex === -1) return
+		const column = state[columnIndex]
+
+		return { column, columnIndex }
+	},
 	getTodosColumnWithTodo(
 		state: TodosColumn[],
 		{
@@ -14,15 +28,13 @@ export const todosColumnUtils = {
 			todosColumnId
 		}: { todoId: Todo['id']; todosColumnId: TodosColumn['id'] }
 	) {
-		const todosColumnIndex = state.findIndex(item => item.id === todosColumnId)
-		if (todosColumnIndex === -1) return
-		const todosColumn = state[todosColumnIndex]
+		const todosColumn = todosColumnUtils.getTodosColumn(state, todosColumnId)
+		if (!todosColumn) return
 
-		const todoIndex = todosColumn.todos.findIndex(item => item.id === todoId)
-		if (todoIndex === -1) return
-		const todo = todosColumn.todos[todoIndex]
+		const todo = todosColumnUtils.getTodo(todosColumn.column, todoId)
+		if (!todo) return
 
-		return { todosColumnIndex, todosColumn, todoIndex, todo }
+		return { ...todosColumn, ...todo }
 	},
 	create(todosColumn: TodosColumn, todo: TodoCreated): TodosColumn {
 		const created_at = new Date().toISOString()

@@ -1,6 +1,6 @@
 import { todosColumnsModel } from 'entities/todos-columns'
 import { Grip } from 'lucide-react'
-import { memo, useLayoutEffect, useRef } from 'react'
+import { memo, useLayoutEffect, useMemo, useRef } from 'react'
 import { Card, CardTitle } from 'shared/components'
 import { twMerge } from 'tailwind-merge'
 import { Todo } from 'widgets/todo'
@@ -20,11 +20,17 @@ const TodosColumnView = ({ todosColumn }: TodosColumnProps) => {
 		dropTodo(drop(dragPreview(ref)))
 	}, [dragPreview, drop, dropTodo])
 
+	const todos = useMemo(() => {
+		return todosColumn.todos.map(todo => {
+			return <Todo key={todo.id} todo={todo} />
+		})
+	}, [todosColumn.todos])
+
 	return (
 		<div ref={ref}>
 			<Card
 				className={twMerge(
-					'w-[300px] p-4',
+					'w-[300px] p-4 transition-colors',
 					isDragging && 'opacity-50',
 					isOver && 'bg-neutral-100',
 					isTodoOver && 'border-sky-500'
@@ -38,11 +44,7 @@ const TodosColumnView = ({ todosColumn }: TodosColumnProps) => {
 					</div>
 					<TodosColumnDropdown todosColumn={todosColumn} />
 				</CardTitle>
-				<div className="flex flex-col gap-2">
-					{todosColumn.todos.map(todo => {
-						return <Todo key={todo.id} todo={todo} />
-					})}
-				</div>
+				<div className="flex flex-col gap-2">{todos}</div>
 			</Card>
 		</div>
 	)

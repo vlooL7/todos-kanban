@@ -1,6 +1,5 @@
 import { useUnit } from 'effector-react'
-import type { Todo } from 'entities/todos'
-import { todosColumnsModel } from 'entities/todos-columns'
+import { todosModel, type Todo } from 'entities/todos'
 import { todoFormModel } from 'features/todo-form'
 import { CircleMinus, EllipsisVertical, Pencil } from 'lucide-react'
 import {
@@ -15,11 +14,11 @@ import {
 
 export type TodoDropdownProps = { todo: Todo }
 export const TodoDropdown = ({ todo }: TodoDropdownProps) => {
-	const todoInTodosColumnApi = useUnit(todosColumnsModel.todoInTodosColumnApi)
+	const todosApi = useUnit(todosModel.todosApi)
 	const todoDialogApi = useUnit(todoFormModel.dialogApi)
 
 	const onEdit = () => todoDialogApi.openEdited(todo)
-	const onRemove = () => todoInTodosColumnApi.remove(todo)
+	const onRemove = () => todosApi.remove(todo)
 
 	return (
 		<DropdownMenu>

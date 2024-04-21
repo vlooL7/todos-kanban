@@ -12,9 +12,6 @@ export const useTodosColumnDnD = (todosColumn: TodosColumn) => {
 	const todosColumnsApi = useUnit(todosColumnsModel.todosColumnsApi)
 	const todoInTodosColumnApi = useUnit(todosColumnsModel.todoInTodosColumnApi)
 
-	const latest = useLatest({
-		todosLength: todosColumn.todos.length
-	})
 	const todosColumnItemLatest = useLatest<TodosColumnDnDItem>({
 		id: todosColumn.id
 	})
@@ -33,17 +30,16 @@ export const useTodosColumnDnD = (todosColumn: TodosColumn) => {
 	const [{ isOver }, drop] = useDrop(
 		() => ({
 			accept: DnDTypes.TODOS_COLUMN,
-			hover: (item: TodosColumnDnDItem) => {
+			drop(item: TodosColumnDnDItem) {
 				const todosColumnItem = todosColumnItemLatest.current
+				if (item.id === todosColumnItem.id) return
 
 				todosColumnsApi.moveAfter({
 					todosColumn: item,
 					todosColumnAfter: todosColumnItem
 				})
 			},
-			collect: monitor => ({
-				isOver: !!monitor.isOver()
-			})
+			collect: monitor => ({ isOver: !!monitor.isOver() })
 		}),
 		[todosColumnItemLatest, todosColumnsApi]
 	)
@@ -51,27 +47,33 @@ export const useTodosColumnDnD = (todosColumn: TodosColumn) => {
 	const [{ isTodoOver }, dropTodo] = useDrop(
 		() => ({
 			accept: DnDTypes.TODO_IN_TODOS_COLUMN,
-			hover: (item: TodoInTodosColumnDnDItem) => {
+			canDrop(item: TodoInTodosColumnDnDItem) {
+				const todosColumnItem = todosColumnItemLatest.current
+				return !!item.columnId && todosColumnItem.id !== item.columnId
+			},
+			drop(item: TodoInTodosColumnDnDItem) {
 				if (!item.columnId) return
-				if (latest.current.todosLength !== 0) return
 
 				const todosColumnItem = todosColumnItemLatest.current
-				if (todosColumnItem.id === item.columnId) return
 
-				todoInTodosColumnApi.pushFromTo({
+				todoInTodosColumnApi.changeColumn({
 					todoFromId: item.id,
 					columnFromId: item.columnId,
 					columnToId: todosColumnItem.id
 				})
-
-				item.columnId = todosColumnItem.id
 			},
-			collect: monitor => ({
-				isTodoOver: !!monitor.isOver()
-			})
+			collect: monitor => ({ isTodoOver: !!monitor.isOver() })
 		}),
-		[latest, todoInTodosColumnApi, todosColumnItemLatest]
+		[todoInTodosColumnApi, todosColumnItemLatest]
 	)
 
-	return { isDragging, isOver, isTodoOver, drag, dragPreview, drop, dropTodo }
+	return {
+		isDragging,
+		isOver,
+		isTodoOver,
+		drag,
+		dragPreview,
+		drop,
+		dropTodo
+	}
 }

@@ -10,7 +10,7 @@ const TodoView = ({ todo }: TodoProps) => {
 	const { title, description, created_at } = todo
 	const ref = useRef<HTMLDivElement>(null)
 
-	const { isMove, isDragging, drag, dragPreview, drop } = useTodoDnD(todo)
+	const { isMove, isOver, drag, dragPreview, drop } = useTodoDnD(todo)
 
 	useLayoutEffect(() => {
 		dragPreview(drop(ref))
@@ -20,17 +20,17 @@ const TodoView = ({ todo }: TodoProps) => {
 		<div
 			ref={ref}
 			className={twMerge(
-				'flex flex-col gap-2 py-3 px-2 border-2 rounded-sm',
-				isDragging && 'opacity-0',
-				isMove && 'bg-sky-100'
+				'flex flex-col gap-2 py-3 px-2 border-2 rounded-sm relative transition-colors',
+				isOver && 'bg-neutral-100',
+				isMove && 'opacity-50'
 			)}>
 			<div className="flex flex-row gap-2 justify-between">
-				<h3 className="font-semibold">{title}</h3>
+				<h3 className="font-semibold line-clamp-3 text-ellipsis">{title}</h3>
 				<TodoDropdown todo={todo} />
 			</div>
-			<p className="text-sm">{description}</p>
+			<p className="text-sm line-clamp-2 text-ellipsis">{description}</p>
 			<div className="flex items-center justify-between">
-				<div ref={drag} data-handler-id={todo.id} role="handle">
+				<div ref={drag}>
 					<Grip className="cursor-move" size="1em" />
 				</div>
 				<time className="text-slate-500 text-sm">

@@ -1,49 +1,49 @@
 import { useUnit } from 'effector-react'
-import { Todo } from 'entities/todos'
-import { todosColumnsModel } from 'entities/todos-columns'
+import { Todo, todosModel } from 'entities/todos'
 import { useDrag, useDrop } from 'react-dnd'
 import { DnDTypes, TodoInTodosColumnDnDItem, useLatest } from 'shared/lib'
 
 export const useTodoDnD = (todo: Todo) => {
-	const todoInTodosColumnApi = useUnit(todosColumnsModel.todoInTodosColumnApi)
+	const todosApi = useUnit(todosModel.todosApi)
 
 	const todoItemLatest = useLatest<TodoInTodosColumnDnDItem>({
 		id: todo.id,
 		columnId: todo.columnId
 	})
 
-	const [{ isDragging, isMove }, drag, dragPreview] = useDrag(
+	const [{ isMove }, drag, dragPreview] = useDrag(
 		() => ({
 			type: DnDTypes.TODO_IN_TODOS_COLUMN,
 			item: todoItemLatest.current satisfies TodoInTodosColumnDnDItem,
 			collect: monitor => ({
-				isDragging: monitor.isDragging(),
 				isMove: monitor.getItem()?.id === todoItemLatest.current.id
 			})
 		}),
 		[todoItemLatest]
 	)
 
-	const [_collectedProps, drop] = useDrop(
+	const [{ isOver }, drop] = useDrop(
 		() => ({
 			accept: DnDTypes.TODO_IN_TODOS_COLUMN,
-			hover: (item: TodoInTodosColumnDnDItem) => {
+			canDrop(item: TodoInTodosColumnDnDItem) {
 				const todoItem = todoItemLatest.current
-				if (item.id === todoItem.id) return
+				return item.id !== todoItem.id && !!(item.columnId && todoItem.columnId)
+			},
+			drop(item: TodoInTodosColumnDnDItem) {
+				const todoItem = todoItemLatest.current
 				if (!item.columnId || !todoItem.columnId) return
 
-				todoInTodosColumnApi.moveFromTo({
+				todosApi.changeColumn({
 					todoFromId: item.id,
 					todoToId: todoItem.id,
 					columnFromId: item.columnId,
 					columnToId: todoItem.columnId
 				})
-
-				item.columnId = todoItem.columnId
-			}
+			},
+			collect: monitor => ({ isOver: !!monitor.isOver() })
 		}),
-		[todoInTodosColumnApi, todoItemLatest]
+		[todoItemLatest, todosApi]
 	)
 
-	return { isDragging, isMove, drag, dragPreview, drop }
+	return { isMove, isOver, drag, dragPreview, drop }
 }
